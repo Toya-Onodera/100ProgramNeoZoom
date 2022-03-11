@@ -1,25 +1,22 @@
+import 'aframe';
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+
+// FIXME: 型定義ファイルがなさそうなので自分で定義する必要がありそう？
+// @ts-ignore
+import { Entity, Scene } from "aframe-react";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+      <Scene>
+          <Entity
+              geometry={{ primitive: 'box' }}
+              material={{ color: 'red' }}
+              position={{ x: 0, y: 0, z: -5 }}
+              rotation={{ x: 0, y: 45, z: 45 }}
+              scale={{ x: 2, y: 2, z: 2 }}
+          />
+          <Entity primitive="a-sky" material="color: #ccc" />
+      </Scene>
   );
 }
 
