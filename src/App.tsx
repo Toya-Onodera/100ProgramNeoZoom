@@ -1,8 +1,5 @@
 import "aframe";
 import React from "react";
-
-// FIXME: 型定義ファイルがなさそうなので自分で定義する必要がありそう？
-// @ts-ignore
 import { Entity, Scene } from "aframe-react";
 
 function App() {
