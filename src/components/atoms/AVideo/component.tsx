@@ -2,10 +2,12 @@ import "aframe";
 import React from "react";
 import { Entity } from "aframe-react";
 
+export type SrcType = string | null;
+
 export type Props = {
   height: string;
   position: string;
-  src: string;
+  src: SrcType;
   width: string;
   rotation: string;
 };
