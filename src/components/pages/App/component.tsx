@@ -1,18 +1,14 @@
-import "aframe";
 import React from "react";
-import { Scene } from "aframe-react";
 
-import { ASky } from "../../atoms/ASky";
-import { ThreeScreenVideo } from "../../molecules/ThreeScreenVideo";
+// Components
+import { ChatJoin } from "../../organisms/ChatJoin";
+import { StreamingVideoChat } from "../../organisms/StreamingVideoChat";
+
+// Hooks
 import { useAppHooks } from "./hooks";
 
-export const App = () => {
-  const { threeVideoSources } = useAppHooks();
+export const App: React.VFC = () => {
+  const { isJoinRoom } = useAppHooks();
 
-  return (
-    <Scene>
-      <ASky material="color: #cccccc" />
-      <ThreeScreenVideo sources={threeVideoSources} />
-    </Scene>
-  );
+  return isJoinRoom ? <StreamingVideoChat /> : <ChatJoin />;
 };

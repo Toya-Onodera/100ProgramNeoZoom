@@ -1,0 +1,1 @@
+export { ChatJoin } from "./component";
