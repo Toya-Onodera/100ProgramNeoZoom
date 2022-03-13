@@ -5,6 +5,7 @@
   "dependencies": {
     "@emotion/react": "^11.8.2",
     "@emotion/styled": "^11.8.1",
+    "@mui/icons-material": "^5.5.0",
     "@mui/material": "^5.5.0",
     "@mui/styled-engine": "^5.4.4",
     "@mui/styled-engine-sc": "^5.4.2",
@@ -57,5 +58,5 @@
   "resolutions": {
     "styled-components": "^5",
     "@mui/styled-engine": "npm:@mui/styled-engine-sc@latest"
-}
+  }
 }

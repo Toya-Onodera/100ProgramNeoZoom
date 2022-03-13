@@ -1,8 +1,20 @@
-import React from "react";
-import styled from "styled-components";
+import React, { useCallback, useRef } from "react";
+
+// Components
+import { InputForm } from "../../molecules/InputForm";
 
 export const ChatJoin: React.VFC = () => {
-  return <Wrapper />;
-};
+  const inputRef = useRef<HTMLInputElement>();
+  const onClick = useCallback(() => {
+    console.log(inputRef.current?.value);
+  }, []);
 
-const Wrapper = styled.div``;
+  return (
+    <InputForm
+      headingText="Enter a Room"
+      buttonText="Join"
+      inputRef={inputRef}
+      onClick={onClick}
+    />
+  );
+};

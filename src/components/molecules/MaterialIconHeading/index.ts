@@ -1,0 +1,1 @@
+export { MaterialIconHeading } from "./component";
