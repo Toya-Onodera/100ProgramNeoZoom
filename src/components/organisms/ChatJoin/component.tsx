@@ -1,19 +1,35 @@
-import React, { useCallback, useContext, useRef } from "react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useContext,
+  useRef,
+} from "react";
 
 // Components
 import { InputForm } from "../../molecules/InputForm";
 
 // Contexts
-import { PeerContext } from "../../pages/App/component";
+import { PeerContext, StreamContext } from "../../pages/App";
 
-export const ChatJoin: React.VFC = () => {
+type Props = {
+  setIsJoinRoom: Dispatch<SetStateAction<boolean>>;
+};
+
+export const ChatJoin: React.VFC<Props> = ({ setIsJoinRoom }) => {
   const peer = useContext(PeerContext);
+  const stream = useContext(StreamContext);
   const inputRef = useRef<HTMLInputElement>();
 
   const onClick = useCallback(() => {
-    console.log(peer);
-    console.log(inputRef.current?.value);
-  }, [peer]);
+    // ルーム ID が入力されている場合のみ動作させる
+    const roomId = `${inputRef.current?.value}`;
+
+    if (roomId && peer && stream) {
+      peer.joinRoom(roomId, { stream: stream });
+      setIsJoinRoom(true);
+    }
+  }, [peer, stream]);
 
   return (
     <InputForm
