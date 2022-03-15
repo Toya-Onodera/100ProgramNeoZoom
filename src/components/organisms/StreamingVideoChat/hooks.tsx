@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from "react";
-import Peer from "skyway-js";
 
 import { AVideoProps } from "../../atoms/AVideo";
 import { AVideoStreamProps } from "../../atoms/AVideoStream";
@@ -37,19 +36,19 @@ export const useStreamingVideoChatHooks = () => {
 
   // カメラを使用する
   useEffect(() => {
-    // (async () => {
-    //   try {
-    //     const stream = await navigator.mediaDevices.getUserMedia({
-    //       video: true,
-    //       audio: true,
-    //     });
-    //
-    //     setStream(stream);
-    //   } catch (error) {
-    //     setStream(null);
-    //     console.error("mediaDevice.getUserMedia() error", error);
-    //   }
-    // })();
+    (async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: true,
+        });
+
+        setStream(stream);
+      } catch (error) {
+        setStream(null);
+        console.error("mediaDevice.getUserMedia() error", error);
+      }
+    })();
   }, []);
 
   return { threeVideoSources, stream };

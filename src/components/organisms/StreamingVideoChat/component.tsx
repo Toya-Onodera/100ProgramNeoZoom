@@ -9,7 +9,7 @@ import { ThreeScreenVideo } from "../../molecules/ThreeScreenVideo";
 // Hooks
 import { useStreamingVideoChatHooks } from "./hooks";
 
-export const StreamingVideoChat = () => {
+export const StreamingVideoChat: React.VFC = () => {
   const { threeVideoSources } = useStreamingVideoChatHooks();
 
   return (

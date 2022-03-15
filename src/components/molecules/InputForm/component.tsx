@@ -1,4 +1,4 @@
-import React, { MutableRefObject, Ref, useRef } from "react";
+import React, { MutableRefObject } from "react";
 
 import {
   Box,
@@ -29,8 +29,6 @@ export const InputForm: React.VFC<Props> = ({
   inputRef,
   onClick,
 }) => {
-  // const inputRef = useRef<HTMLInputElement>();
-
   return (
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
