@@ -10,26 +10,36 @@ import React, {
 import { InputForm } from "../../molecules/InputForm";
 
 // Contexts
-import { PeerContext, StreamContext } from "../../pages/App";
+import { PeerContext, AllStreamStoreContext } from "../../pages/App";
+import { RoomContext } from "../../pages/App/component";
 
 type Props = {
   setIsJoinRoom: Dispatch<SetStateAction<boolean>>;
 };
 
 export const ChatJoin: React.VFC<Props> = ({ setIsJoinRoom }) => {
+  const allStreamInfo = useContext(AllStreamStoreContext);
   const peer = useContext(PeerContext);
-  const stream = useContext(StreamContext);
+  const { setRoom } = useContext(RoomContext);
+
   const inputRef = useRef<HTMLInputElement>();
 
   const onClick = useCallback(() => {
     // ルーム ID が入力されている場合のみ動作させる
     const roomId = `${inputRef.current?.value}`;
 
-    if (roomId && peer && stream) {
-      peer.joinRoom(roomId, { stream: stream });
+    if (roomId && peer && allStreamInfo.localStream) {
+      const room = peer.joinRoom(roomId, {
+        mode: "sfu",
+        stream: allStreamInfo.localStream.stream
+          ? allStreamInfo.localStream.stream
+          : undefined,
+      });
+
+      setRoom(room);
       setIsJoinRoom(true);
     }
-  }, [peer, stream]);
+  }, [peer, allStreamInfo.localStream]);
 
   return (
     <InputForm

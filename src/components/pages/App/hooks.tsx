@@ -1,43 +1,123 @@
-import { useEffect, useRef, useState } from "react";
-import Peer, { MediaConnection } from "skyway-js";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import Peer, {
+  DataConnection,
+  MediaConnection,
+  MeshRoom,
+  SfuRoom,
+} from "skyway-js";
 
 export type PeerType = null | Peer;
 export type StreamType = null | MediaStream;
+export type RoomType = SfuRoom | MeshRoom | null;
+export type RoomContextType = {
+  room: RoomType;
+  setRoom: Dispatch<SetStateAction<RoomType>>;
+};
+
+export type StreamInfo = {
+  id: string;
+  stream: StreamType;
+};
+
+export type AllStreamInfo = {
+  localStream: StreamInfo | null;
+  otherStream: StreamInfo[];
+};
 
 export const useAppHooks = () => {
-  const [stream, setStream] = useState<StreamType>(null);
+  const [allStreamStore, setAllStreamStore] = useState<AllStreamInfo>({
+    localStream: null,
+    otherStream: [],
+  });
+
   const [isJoinRoom, setIsJoinRoom] = useState<boolean>(false);
+  const [room, setRoom] = useState<RoomType>(null);
+
+  const { current: peer } = useRef<Peer>(
+    new Peer({ key: process.env.REACT_APP_SKYWAY_API_KEY as string })
+  );
 
   // カメラを使用する
   // TODO: カメラの起動タイミングを調整する必要がありそう
   useEffect(() => {
     (async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
+        const localStream = await navigator.mediaDevices.getUserMedia({
           video: true,
           audio: true,
         });
 
-        setStream(stream);
+        const localStreamInfo = {
+          id: peer.id,
+          stream: localStream,
+        };
+
+        setAllStreamStore({
+          localStream: localStreamInfo,
+          otherStream: [],
+        });
       } catch (error) {
-        setStream(null);
+        setAllStreamStore({
+          localStream: null,
+          otherStream: [],
+        });
+
         console.error("mediaDevice.getUserMedia() error", error);
       }
     })();
   }, []);
 
-  const { current: peer } = useRef<Peer>(
-    new Peer({ key: process.env.REACT_APP_SKYWAY_API_KEY as string })
-  );
+  // Context で利用できるようにまとめておく
+  const roomValue = { room, setRoom };
 
-  peer?.on("call", (mediaConnection: MediaConnection) => {
-    console.log(mediaConnection);
-  });
+  useEffect(() => {
+    peer.on("call", (mediaConnection: MediaConnection) => {
+      console.log(mediaConnection);
+    });
 
-  peer?.on("error", (error) => {
-    console.log(`${error.type}: ${error.message}`);
-    // => room-error: Room name must be defined.
-  });
+    peer.on("connection", (dataConnection: DataConnection) => {
+      console.log(dataConnection);
+    });
 
-  return { stream, peer, isJoinRoom, setIsJoinRoom };
+    peer.on("error", (error) => {
+      console.log(`${error.type}: ${error.message}`);
+      // => room-error: Room name must be defined.
+    });
+  }, [peer]);
+
+  useEffect(() => {
+    if (room) {
+      room.on("open", () => {
+        console.log("open", room);
+      });
+
+      room.on("peerJoin", () => {
+        console.log("peerJoin", room);
+      });
+
+      room.on("peerLeave", (peerId: string) => {
+        console.log("peerLeave", peerId);
+      });
+
+      room.on("stream", (stream) => {
+        console.log("stream", stream);
+
+        const userStreamInfo = {
+          id: stream.peerId,
+          stream: stream,
+        };
+
+        setAllStreamStore({
+          localStream: allStreamStore.localStream,
+          otherStream: [...allStreamStore.otherStream, userStreamInfo],
+        });
+      });
+
+      room.on("data", ({ src, data }) => {
+        console.log("data", src, data);
+      });
+    }
+  }, [room]);
+
+  return { allStreamStore, peer, isJoinRoom, setIsJoinRoom, roomValue };
 };

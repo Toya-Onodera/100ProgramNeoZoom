@@ -10,13 +10,13 @@ import { ThreeScreenVideo } from "../../molecules/ThreeScreenVideo";
 import { useStreamingVideoChatHooks } from "./hooks";
 
 // Contexts
-import { StreamContext } from "../../pages/App";
+import { AllStreamStoreContext } from "../../pages/App";
 
 export const StreamingVideoChat: React.VFC = () => {
-  const stream = useContext(StreamContext);
+  const allStreamStore = useContext(AllStreamStoreContext);
 
   // FIXME: ここは stream を動的に表示する処理に変更する
-  const { threeVideoSources } = useStreamingVideoChatHooks(stream);
+  const { threeVideoSources } = useStreamingVideoChatHooks(allStreamStore);
 
   return (
     <Scene>
