@@ -1,14 +1,9 @@
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
-import Peer, {
-  DataConnection,
-  MediaConnection,
-  MeshRoom,
-  SfuRoom,
-} from "skyway-js";
+import Peer, { SfuRoom } from "skyway-js";
 
 export type PeerType = null | Peer;
 export type StreamType = null | MediaStream;
-export type RoomType = SfuRoom | MeshRoom | null;
+export type RoomType = SfuRoom | null;
 export type RoomContextType = {
   room: RoomType;
   setRoom: Dispatch<SetStateAction<RoomType>>;
@@ -71,32 +66,28 @@ export const useAppHooks = () => {
   const roomValue = { room, setRoom };
 
   useEffect(() => {
-    peer.on("call", (mediaConnection: MediaConnection) => {
-      console.log(mediaConnection);
-    });
-
-    peer.on("connection", (dataConnection: DataConnection) => {
-      console.log(dataConnection);
-    });
-
-    peer.on("error", (error) => {
-      console.log(`${error.type}: ${error.message}`);
-      // => room-error: Room name must be defined.
-    });
-  }, [peer]);
-
-  useEffect(() => {
     if (room) {
       room.on("open", () => {
         console.log("open", room);
-      });
 
-      room.on("peerJoin", () => {
-        console.log("peerJoin", room);
-      });
+        // 接続時に既にユーザが複数人いる場合の処理
+        const { remoteStreams } = room;
 
-      room.on("peerLeave", (peerId: string) => {
-        console.log("peerLeave", peerId);
+        if (remoteStreams) {
+          const remoteStreamsInfo = Object.values(remoteStreams).map(
+            (stream) => {
+              return {
+                id: stream.peerId,
+                stream: stream,
+              };
+            }
+          );
+
+          setAllStreamStore({
+            localStream: allStreamStore.localStream,
+            otherStream: remoteStreamsInfo,
+          });
+        }
       });
 
       room.on("stream", (stream) => {
