@@ -1,0 +1,1 @@
+export { AVideoPeople } from "./component";

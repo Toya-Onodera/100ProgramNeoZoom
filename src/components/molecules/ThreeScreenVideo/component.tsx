@@ -12,13 +12,7 @@ export const ThreeScreenVideo: React.VFC<Props> = ({ sources }) => {
     <>
       {sources &&
         sources.map((source, i) => {
-          return (
-            <AVideo
-              source={source}
-              key={`AVideo-${i}`}
-              elementId={`a-video-${i}`}
-            />
-          );
+          return <AVideo source={source} key={`AVideo-${i}`} />;
         })}
     </>
   );

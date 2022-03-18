@@ -6,8 +6,7 @@ import { Scene } from "aframe-react";
 import { ASky } from "../../atoms/ASky";
 import { ACamera } from "../../atoms/ACamera";
 import { ATable } from "../../atoms/ATable";
-import { APeople } from "../../atoms/APeople";
-import { ThreeScreenVideo } from "../../molecules/ThreeScreenVideo";
+import { AVideoPeople } from "../../molecules/AVideoPeople";
 
 // Hooks
 import { useStreamingVideoChatHooks } from "./hooks";
@@ -16,15 +15,14 @@ import { useStreamingVideoChatHooks } from "./hooks";
 import { AllStreamStoreContext } from "../../pages/App";
 
 export const StreamingVideoChat: React.VFC = () => {
-  // const allStreamStore = useContext(AllStreamStoreContext);
+  const allStreamStore = useContext(AllStreamStoreContext);
 
   // FIXME: ここは stream を動的に表示する処理に変更する
-  // const { threeVideoSources } = useStreamingVideoChatHooks(allStreamStore);
+  const { threeVideoSources } = useStreamingVideoChatHooks(allStreamStore);
 
   return (
-    <Scene>
+    <Scene vr-mode-ui="enabled: false">
       <ASky material="color: #cccccc" />
-      {/*<ThreeScreenVideo sources={threeVideoSources} />*/}
 
       <ATable
         color="#060"
@@ -44,7 +42,8 @@ export const StreamingVideoChat: React.VFC = () => {
       />
 
       {/*<!-- 参加者1 -->*/}
-      <APeople
+      <AVideoPeople
+        source={threeVideoSources[0]}
         width="1"
         height="2"
         depth="1"
@@ -55,7 +54,8 @@ export const StreamingVideoChat: React.VFC = () => {
       />
 
       {/*<!-- 参加者2 -->*/}
-      <APeople
+      <AVideoPeople
+        source={threeVideoSources[0]}
         width="1"
         height="2"
         depth="1"
@@ -66,7 +66,8 @@ export const StreamingVideoChat: React.VFC = () => {
       />
 
       {/*<!-- 参加者3 -->*/}
-      <APeople
+      <AVideoPeople
+        source={threeVideoSources[0]}
         width="3"
         height="5"
         depth="1"

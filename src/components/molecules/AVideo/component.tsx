@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 
 // components
 import {
@@ -17,20 +17,23 @@ export type VideoSource = AVideoProps | AVideoStreamProps;
 
 type Props = {
   source: VideoSource;
-  elementId?: string;
 };
 
-export const AVideo: React.VFC<Props> = ({ source, elementId }) => {
+export const AVideo: React.VFC<Props> = ({ source }) => {
   const isMediaStream = (
     src: AVideoType | AVideoStreamType
   ): src is MediaStream => typeof src !== "string" && src !== null;
+
+  const key = useMemo<number>(() => {
+    return new Date().getUTCMilliseconds();
+  }, []);
 
   const { height, src, position, width, rotation } = source;
   return (
     <>
       {isMediaStream(src) ? (
         <AVideoStream
-          elementId={elementId}
+          elementId={`AVideoStream-${key}`}
           height={height}
           src={src}
           position={position}
