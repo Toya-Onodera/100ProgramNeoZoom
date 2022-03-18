@@ -1,11 +1,12 @@
 import "aframe";
 import React, { useContext } from "react";
-import { Scene, Entity } from "aframe-react";
+import { Scene } from "aframe-react";
 
 // Components
 import { ASky } from "../../atoms/ASky";
+import { ACamera } from "../../atoms/ACamera";
 import { ATable } from "../../atoms/ATable";
-import { APeople } from "../../atoms/APeople/component";
+import { APeople } from "../../atoms/APeople";
 import { ThreeScreenVideo } from "../../molecules/ThreeScreenVideo";
 
 // Hooks
@@ -34,13 +35,12 @@ export const StreamingVideoChat: React.VFC = () => {
       />
 
       {/* 自身の視点 */}
-      <Entity
-        primitive="a-camera"
+      <ACamera
         position="0 1 4"
-        cursor-visible="true"
-        cursor-scale="2"
-        cursor-color="#0095DD"
-        cursor-opacity="0.5"
+        cursorVisible="true"
+        cursorScale="2"
+        cursorColor="#0095DD"
+        cursorOpacity="0.5"
       />
 
       {/*<!-- 参加者1 -->*/}

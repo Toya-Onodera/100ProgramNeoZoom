@@ -1,0 +1,1 @@
+export { APeople } from "./component";
