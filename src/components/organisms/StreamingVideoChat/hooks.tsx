@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 
 import { AVideoProps } from "../../atoms/AVideo";
 import { AVideoStreamProps } from "../../atoms/AVideoStream";

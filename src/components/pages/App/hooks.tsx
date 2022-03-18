@@ -60,7 +60,7 @@ export const useAppHooks = () => {
         console.error("mediaDevice.getUserMedia() error", error);
       }
     })();
-  }, []);
+  }, [peer]);
 
   // Context で利用できるようにまとめておく
   const roomValue = { room, setRoom };
