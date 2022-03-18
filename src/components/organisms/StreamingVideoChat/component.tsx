@@ -48,9 +48,10 @@ export const StreamingVideoChat: React.VFC = () => {
         width="1"
         height="2"
         depth="1"
+        position="0 0 -4"
         rotation="0 0 0"
-        position="4 0 0"
-        material="color: #4CC3D9"
+        material="color: #ffb0b0"
+        scale="3 3 3"
       />
 
       {/*<!-- 参加者2 -->*/}
@@ -59,18 +60,20 @@ export const StreamingVideoChat: React.VFC = () => {
         height="2"
         depth="1"
         position="-4 0 0"
-        rotation="0 0 0"
+        rotation="0 90 0"
         material="color: #fcf876"
+        scale="3 3 3"
       />
 
       {/*<!-- 参加者3 -->*/}
       <APeople
-        width="1"
-        height="2"
+        width="3"
+        height="5"
         depth="1"
-        position="0 0 -4"
-        rotation="0 0 0"
-        material="color: #ffb0b0"
+        rotation="0 -90 0"
+        position="4 0 0"
+        material="color: #4CC3D9"
+        scale="3 3 3"
       />
     </Scene>
   );
