@@ -1,0 +1,1 @@
+export { ATable } from "./component";

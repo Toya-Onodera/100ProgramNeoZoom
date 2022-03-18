@@ -4,6 +4,8 @@ import { Scene, Entity } from "aframe-react";
 
 // Components
 import { ASky } from "../../atoms/ASky";
+import { ATable } from "../../atoms/ATable";
+import { APeople } from "../../atoms/APeople/component";
 import { ThreeScreenVideo } from "../../molecules/ThreeScreenVideo";
 
 // Hooks
@@ -13,19 +15,17 @@ import { useStreamingVideoChatHooks } from "./hooks";
 import { AllStreamStoreContext } from "../../pages/App";
 
 export const StreamingVideoChat: React.VFC = () => {
-  const allStreamStore = useContext(AllStreamStoreContext);
+  // const allStreamStore = useContext(AllStreamStoreContext);
 
   // FIXME: ここは stream を動的に表示する処理に変更する
-  const { threeVideoSources } = useStreamingVideoChatHooks(allStreamStore);
+  // const { threeVideoSources } = useStreamingVideoChatHooks(allStreamStore);
 
   return (
     <Scene>
       <ASky material="color: #cccccc" />
       {/*<ThreeScreenVideo sources={threeVideoSources} />*/}
 
-      {/* 円卓 */}
-      <Entity
-        primitive="a-cylinder"
+      <ATable
         color="#060"
         radius="3"
         height="0.5"
@@ -36,7 +36,7 @@ export const StreamingVideoChat: React.VFC = () => {
       {/* 自身の視点 */}
       <Entity
         primitive="a-camera"
-        position="0 10 0"
+        position="0 1 4"
         cursor-visible="true"
         cursor-scale="2"
         cursor-color="#0095DD"
@@ -44,8 +44,7 @@ export const StreamingVideoChat: React.VFC = () => {
       />
 
       {/*<!-- 参加者1 -->*/}
-      <Entity
-        primitive="a-box"
+      <APeople
         width="1"
         height="2"
         depth="1"
@@ -55,8 +54,7 @@ export const StreamingVideoChat: React.VFC = () => {
       />
 
       {/*<!-- 参加者2 -->*/}
-      <Entity
-        primitive="a-box"
+      <APeople
         width="1"
         height="2"
         depth="1"
@@ -66,8 +64,7 @@ export const StreamingVideoChat: React.VFC = () => {
       />
 
       {/*<!-- 参加者3 -->*/}
-      <Entity
-        primitive="a-box"
+      <APeople
         width="1"
         height="2"
         depth="1"
