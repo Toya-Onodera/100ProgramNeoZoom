@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-import { AVideoProps } from "../../atoms/AVideo";
+import { AVideoProps } from "../../atoms/AVideoSource";
 import { AVideoStreamProps } from "../../atoms/AVideoStream";
 import { AllStreamInfo } from "../../pages/App/hooks";
 

@@ -12,7 +12,7 @@ export type Props = {
   rotation: string;
 };
 
-export const AVideo: React.VFC<Props> = ({
+export const AVideoSource: React.VFC<Props> = ({
   height,
   position,
   src,
