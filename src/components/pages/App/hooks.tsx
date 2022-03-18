@@ -102,7 +102,7 @@ export const useAppHooks = () => {
       room.on("stream", (stream) => {
         console.log("stream", stream);
 
-        const userStreamInfo = {
+        const userStreamInfo: StreamInfo = {
           id: stream.peerId,
           stream: stream,
         };
@@ -117,7 +117,7 @@ export const useAppHooks = () => {
         console.log("data", src, data);
       });
     }
-  }, [room]);
+  }, [room, allStreamStore]);
 
   return { allStreamStore, peer, isJoinRoom, setIsJoinRoom, roomValue };
 };
