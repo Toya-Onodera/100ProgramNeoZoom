@@ -4,7 +4,10 @@ import {
   useCallback,
   useContext,
   useRef,
+  useState,
 } from "react";
+
+// Context
 import { AllStreamStoreContext, PeerContext } from "../../pages/App";
 import { RoomContext } from "../../pages/App/component";
 
@@ -15,9 +18,11 @@ export const useChatJoinHooks = (
   const peer = useContext(PeerContext);
   const { setRoom } = useContext(RoomContext);
 
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   const inputRef = useRef<HTMLInputElement>();
 
-  const onClick = useCallback(() => {
+  const roomJoinButtonClickHandler = useCallback(() => {
     // ルーム ID が入力されている場合のみ動作させる
     const roomId = `${inputRef.current?.value}`;
 
@@ -30,12 +35,22 @@ export const useChatJoinHooks = (
       });
 
       setRoom(room);
-      setIsJoinRoom(true);
+      setIsDialogOpen(true);
     }
-  }, [peer, allStreamInfo.localStream, setRoom, setIsJoinRoom]);
+  }, [peer, allStreamInfo.localStream, setRoom, setIsDialogOpen]);
+
+  const seatJoinButtonClickHandler = useCallback(
+    (number: number) => {
+      console.log(number);
+      setIsJoinRoom(true);
+    },
+    [setIsJoinRoom]
+  );
 
   return {
     inputRef,
-    onClick,
+    isDialogOpen,
+    roomJoinButtonClickHandler,
+    seatJoinButtonClickHandler,
   };
 };
