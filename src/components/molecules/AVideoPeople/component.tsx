@@ -32,11 +32,25 @@ export const AVideoPeople: React.VFC<Props> = ({
   // 最終的には平面にカメラを描画ではなく、立方体に描画するほうが良さそう
   const videoPlacement = useMemo(() => {
     const [positionX, positionY, positionZ] = splitStrCoordinate(position);
+    const [rotationX, rotationY, rotationZ] = splitStrCoordinate(rotation);
+
+    // 30°
+    const theta = 15 * (Math.PI / 180);
+    const phi = rotationY * (Math.PI / 180);
+    const radius = 2;
+
+    // 極座標変換を行っている
+    // ただし、算出される値はカメラ原点 [0, 0, 0] の値なので人形の座標を入れて値を作る
+    const [polarX, polarY, polarZ] = [
+      radius * Math.sin(theta) * Math.sin(phi) + positionX,
+      radius * Math.cos(theta) + positionY,
+      radius * Math.sin(theta) * Math.cos(phi) + positionZ,
+    ];
 
     return {
       ...source,
       rotation: rotation,
-      position: `${positionX} ${positionY + 2} ${positionZ}`,
+      position: `${polarX} ${polarY} ${polarZ}`,
     };
   }, [source, position, rotation]);
 

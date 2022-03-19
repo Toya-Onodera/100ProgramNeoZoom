@@ -34,14 +34,14 @@ export const StreamingVideoChat: React.VFC = () => {
 
       {/* 自身の視点 */}
       <ACamera
-        position="0 1 4"
+        position="0 2 5"
         cursorVisible="true"
         cursorScale="2"
         cursorColor="#0095DD"
         cursorOpacity="0.5"
       />
 
-      {/*<!-- 参加者1 -->*/}
+      {/* 参加者1*/}
       <AVideoPeople
         source={threeVideoSources[0]}
         width="1"
@@ -53,7 +53,7 @@ export const StreamingVideoChat: React.VFC = () => {
         scale="3 3 3"
       />
 
-      {/*<!-- 参加者2 -->*/}
+      {/* 参加者2 */}
       <AVideoPeople
         source={threeVideoSources[0]}
         width="1"
@@ -65,14 +65,14 @@ export const StreamingVideoChat: React.VFC = () => {
         scale="3 3 3"
       />
 
-      {/*<!-- 参加者3 -->*/}
+      {/*参加者3*/}
       <AVideoPeople
         source={threeVideoSources[0]}
         width="3"
         height="5"
         depth="1"
-        rotation="0 -90 0"
         position="4 0 0"
+        rotation="0 270 0"
         material="color: #4CC3D9"
         scale="3 3 3"
       />
