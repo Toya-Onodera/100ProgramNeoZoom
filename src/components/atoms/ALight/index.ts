@@ -1,0 +1,1 @@
+export { ALight } from "./component";

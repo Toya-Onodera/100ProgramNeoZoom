@@ -28,7 +28,7 @@ export const AVideoStream: React.VFC<Props> = ({
     if (src) {
       videoRef.current!.srcObject = src;
     }
-  }, [src]);
+  }, [src, videoRef]);
 
   return (
     <>
