@@ -4,6 +4,7 @@ import { Scene } from "aframe-react";
 
 // Components
 import { ASky } from "../../atoms/ASky";
+import { ALight } from "../../atoms/ALight";
 import { ACamera } from "../../atoms/ACamera";
 import { ATable } from "../../atoms/ATable";
 import { AVideoPeople } from "../../molecules/AVideoPeople";
@@ -21,8 +22,13 @@ export const StreamingVideoChat: React.VFC = () => {
   const { threeVideoSources } = useStreamingVideoChatHooks(allStreamStore);
 
   return (
-    <Scene vr-mode-ui="enabled: false">
+    <Scene
+      stats
+      vr-mode-ui="enabled: false"
+      light="defaultLightsEnabled: false"
+    >
       <ASky material="color: #cccccc" />
+      <ALight color="#FFFFFF" intensity="1.5" position="0 5 0" />
 
       <ATable
         color="#060"

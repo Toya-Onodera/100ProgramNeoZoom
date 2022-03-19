@@ -34,10 +34,9 @@ export const AVideoPeople: React.VFC<Props> = ({
     const [positionX, positionY, positionZ] = splitStrCoordinate(position);
     const [rotationX, rotationY, rotationZ] = splitStrCoordinate(rotation);
 
-    // 30°
-    const theta = 15 * (Math.PI / 180);
+    const theta = 5 * (Math.PI / 180);
     const phi = rotationY * (Math.PI / 180);
-    const radius = 2;
+    const radius = 2.7;
 
     // 極座標変換を行っている
     // ただし、算出される値はカメラ原点 [0, 0, 0] の値なので人形の座標を入れて値を作る
