@@ -8,15 +8,21 @@ import {
 } from "react";
 
 // Context
-import { AllStreamStoreContext, PeerContext } from "../../pages/App";
-import { RoomContext } from "../../pages/App/component";
+import {
+  AllStreamStoreContext,
+  PeerContext,
+  RoomContext,
+} from "../../pages/App";
+import { SEND_TEXT_TYPE } from "../../../constants/SEND_TEXT_TYPE";
 
 export const useChatJoinHooks = (
   setIsJoinRoom: Dispatch<SetStateAction<boolean>>
 ) => {
-  const allStreamInfo = useContext(AllStreamStoreContext);
   const peer = useContext(PeerContext);
-  const { setRoom } = useContext(RoomContext);
+  const { room, setRoom } = useContext(RoomContext);
+  const { allStreamStore, setAllStreamStore } = useContext(
+    AllStreamStoreContext
+  );
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -26,25 +32,39 @@ export const useChatJoinHooks = (
     // ルーム ID が入力されている場合のみ動作させる
     const roomId = `${inputRef.current?.value}`;
 
-    if (roomId && peer && allStreamInfo.localStream) {
-      const room = peer.joinRoom(roomId, {
+    if (roomId && peer && allStreamStore.localStream) {
+      const _room = peer.joinRoom(roomId, {
         mode: "sfu",
-        stream: allStreamInfo.localStream.stream
-          ? allStreamInfo.localStream.stream
+        stream: allStreamStore.localStream.stream
+          ? allStreamStore.localStream.stream
           : undefined,
       });
 
-      setRoom(room);
+      setRoom(_room);
       setIsDialogOpen(true);
     }
-  }, [peer, allStreamInfo.localStream, setRoom, setIsDialogOpen]);
+  }, [peer, allStreamStore.localStream, setRoom, setIsDialogOpen]);
 
   const seatJoinButtonClickHandler = useCallback(
     (number: number) => {
-      console.log(number);
-      setIsJoinRoom(true);
+      if (allStreamStore.localStream && room) {
+        setAllStreamStore({
+          localStream: {
+            ...allStreamStore.localStream,
+            seat: number,
+          },
+          otherStream: allStreamStore.otherStream,
+        });
+
+        room.send({
+          type: SEND_TEXT_TYPE.SEAT,
+          text: number,
+        });
+
+        setIsJoinRoom(true);
+      }
     },
-    [setIsJoinRoom]
+    [setIsJoinRoom, allStreamStore, setAllStreamStore, room]
   );
 
   return {

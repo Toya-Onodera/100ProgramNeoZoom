@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import Peer, { SfuRoom } from "skyway-js";
+import { SEND_TEXT_TYPE } from "../../../constants/SEND_TEXT_TYPE";
 
 export type PeerType = null | Peer;
 export type StreamType = null | MediaStream;
@@ -12,11 +13,17 @@ export type RoomContextType = {
 export type StreamInfo = {
   id: string;
   stream: StreamType;
+  seat?: number;
 };
 
 export type AllStreamInfo = {
   localStream: StreamInfo | null;
   otherStream: StreamInfo[];
+};
+
+export type AllStreamInfoContextType = {
+  allStreamStore: AllStreamInfo;
+  setAllStreamStore: Dispatch<SetStateAction<AllStreamInfo>>;
 };
 
 export const useAppHooks = () => {
@@ -63,7 +70,10 @@ export const useAppHooks = () => {
   }, [peer]);
 
   // Context で利用できるようにまとめておく
+  const allStreamStoreValue = { allStreamStore, setAllStreamStore };
   const roomValue = { room, setRoom };
+
+  // const dataConnection = peer.connect("peerID");
 
   useEffect(() => {
     if (room) {
@@ -104,11 +114,60 @@ export const useAppHooks = () => {
         });
       });
 
-      room.on("data", ({ src, data }) => {
-        console.log("data", src, data);
+      // 新規ユーザが参加してきた際に自身の座席情報を送信する
+      room.on("peerJoin", () => {
+        if (allStreamStore.localStream?.seat) {
+          room.send({
+            type: SEND_TEXT_TYPE.SEAT,
+            text: allStreamStore.localStream.seat,
+          });
+        }
       });
-    }
-  }, [room, allStreamStore]);
 
-  return { allStreamStore, peer, isJoinRoom, setIsJoinRoom, roomValue };
+      room.on(
+        "data",
+        ({
+          src: peerId,
+          data,
+        }: {
+          src: string;
+          data: {
+            type: string;
+            text: string;
+          };
+        }) => {
+          console.log("data", peerId, data);
+          const { type } = data;
+
+          switch (type) {
+            case SEND_TEXT_TYPE.SEAT:
+              const { text: seat } = data;
+              setAllStreamStore({
+                localStream: allStreamStore.localStream,
+                otherStream: allStreamStore.otherStream.map((e) => {
+                  // 送り元の Peer ID が同じオブジェクトの seat のみ更新を行う
+                  if (e.id === peerId) {
+                    return {
+                      ...e,
+                      seat: parseInt(seat),
+                    };
+                  }
+                  return e;
+                }),
+              });
+
+              break;
+          }
+        }
+      );
+    }
+  }, [room]);
+
+  return {
+    peer,
+    isJoinRoom,
+    setIsJoinRoom,
+    roomValue,
+    allStreamStoreValue,
+  };
 };

@@ -1,1 +1,6 @@
-export { App, PeerContext, AllStreamStoreContext } from "./component";
+export {
+  App,
+  PeerContext,
+  RoomContext,
+  AllStreamStoreContext,
+} from "./component";
