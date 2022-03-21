@@ -1,6 +1,7 @@
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+
 import Peer, { SfuRoom } from "skyway-js";
-import { SEND_TEXT_TYPE } from "../../../constants/SEND_TEXT_TYPE";
+import { useBeforeunload } from "react-beforeunload";
 
 export type PeerType = null | Peer;
 export type StreamType = null | MediaStream;
@@ -26,6 +27,11 @@ export type AllStreamInfoContextType = {
   setAllStreamStore: Dispatch<SetStateAction<AllStreamInfo>>;
 };
 
+export type FirebaseRoomData = {
+  peerId: string;
+  seat: number;
+};
+
 export const useAppHooks = () => {
   const [allStreamStore, setAllStreamStore] = useState<AllStreamInfo>({
     localStream: null,
@@ -34,6 +40,7 @@ export const useAppHooks = () => {
 
   const [isJoinRoom, setIsJoinRoom] = useState<boolean>(false);
   const [room, setRoom] = useState<RoomType>(null);
+  const [roomId, setRoomId] = useState<string>("");
 
   const { current: peer } = useRef<Peer>(
     new Peer({ key: process.env.REACT_APP_SKYWAY_API_KEY as string })
@@ -73,95 +80,73 @@ export const useAppHooks = () => {
   const allStreamStoreValue = { allStreamStore, setAllStreamStore };
   const roomValue = { room, setRoom };
 
-  // const dataConnection = peer.connect("peerID");
+  // FIXME: デバック用
+  useEffect(
+    () => console.log("allStreamStore", allStreamStore),
+    [allStreamStore]
+  );
 
   useEffect(() => {
-    if (room) {
-      room.on("open", () => {
-        console.log("open", room);
+    room?.on("open", () => {
+      console.log("open", room);
 
-        // 接続時に既にユーザが複数人いる場合の処理
-        const { remoteStreams } = room;
+      // 接続時に既にユーザが複数人いる場合の処理
+      const { remoteStreams } = room;
 
-        if (remoteStreams) {
-          const remoteStreamsInfo = Object.values(remoteStreams).map(
-            (stream) => {
-              return {
-                id: stream.peerId,
-                stream: stream,
-              };
-            }
-          );
-
-          setAllStreamStore({
-            localStream: allStreamStore.localStream,
-            otherStream: remoteStreamsInfo,
-          });
-        }
-      });
-
-      room.on("stream", (stream) => {
-        console.log("stream", stream);
-
-        const userStreamInfo: StreamInfo = {
-          id: stream.peerId,
-          stream: stream,
-        };
+      if (remoteStreams) {
+        const remoteStreamsInfo = Object.values(remoteStreams).map((stream) => {
+          return {
+            id: stream.peerId,
+            stream: stream,
+          };
+        });
 
         setAllStreamStore({
           localStream: allStreamStore.localStream,
-          otherStream: [...allStreamStore.otherStream, userStreamInfo],
+          otherStream: remoteStreamsInfo,
         });
+      }
+    });
+
+    room?.on("stream", (stream) => {
+      console.log("stream", stream);
+
+      const userStreamInfo: StreamInfo = {
+        id: stream.peerId,
+        stream: stream,
+      };
+
+      setAllStreamStore({
+        localStream: allStreamStore.localStream,
+        otherStream: [...allStreamStore.otherStream, userStreamInfo],
       });
+    });
 
-      // 新規ユーザが参加してきた際に自身の座席情報を送信する
-      room.on("peerJoin", () => {
-        if (allStreamStore.localStream?.seat) {
-          room.send({
-            type: SEND_TEXT_TYPE.SEAT,
-            text: allStreamStore.localStream.seat,
-          });
-        }
-      });
-
-      room.on(
-        "data",
-        ({
-          src: peerId,
-          data,
-        }: {
-          src: string;
-          data: {
-            type: string;
-            text: string;
-          };
-        }) => {
-          console.log("data", peerId, data);
-          const { type } = data;
-
-          switch (type) {
-            case SEND_TEXT_TYPE.SEAT:
-              const { text: seat } = data;
-              setAllStreamStore({
-                localStream: allStreamStore.localStream,
-                otherStream: allStreamStore.otherStream.map((e) => {
-                  // 送り元の Peer ID が同じオブジェクトの seat のみ更新を行う
-                  if (e.id === peerId) {
-                    return {
-                      ...e,
-                      seat: parseInt(seat),
-                    };
-                  }
-                  return e;
-                }),
-              });
-
-              break;
-          }
-        }
-      );
-    }
+    room?.on(
+      "data",
+      ({
+        src: peerId,
+        data,
+      }: {
+        src: string;
+        data: {
+          type: string;
+          text: string;
+        };
+      }) => {
+        console.log("data", peerId, data);
+        // const { type, text } = data;
+      }
+    );
   }, [room]);
+
+  // TODO: ページを閉じたとき or 違うサイトに遷移したときに Firebase 上のルームデータを削除する
+  // フロントで完結は無理だと思っている -> (例) バックエンドサーバたてて ws で常時接続して、接続が切れたら db から削除みたいな処理しないと厳しそう
+  useBeforeunload(async (event) => {
+    // ひとまずページ離脱時に確認だけ行う処理を追加しておく
+    event.preventDefault();
+    return false;
+  });
 
   return {
     peer,
@@ -169,5 +154,7 @@ export const useAppHooks = () => {
     setIsJoinRoom,
     roomValue,
     allStreamStoreValue,
+    roomId,
+    setRoomId,
   };
 };

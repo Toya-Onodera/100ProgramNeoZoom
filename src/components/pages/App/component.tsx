@@ -28,8 +28,14 @@ export const RoomContext = createContext<RoomContextType>({
 });
 
 export const App: React.VFC = () => {
-  const { peer, isJoinRoom, setIsJoinRoom, roomValue, allStreamStoreValue } =
-    useAppHooks();
+  const {
+    peer,
+    isJoinRoom,
+    setIsJoinRoom,
+    roomValue,
+    allStreamStoreValue,
+    setRoomId,
+  } = useAppHooks();
 
   return (
     <AllStreamStoreContext.Provider value={allStreamStoreValue}>
@@ -38,7 +44,7 @@ export const App: React.VFC = () => {
           {isJoinRoom ? (
             <StreamingVideoChat />
           ) : (
-            <ChatJoin setIsJoinRoom={setIsJoinRoom} />
+            <ChatJoin setIsJoinRoom={setIsJoinRoom} setRoomId={setRoomId} />
           )}
         </RoomContext.Provider>
       </PeerContext.Provider>

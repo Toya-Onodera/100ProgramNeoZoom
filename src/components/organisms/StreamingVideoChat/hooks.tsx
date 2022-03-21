@@ -15,15 +15,17 @@ export const useStreamingVideoChatHooks = () => {
     const positions = ["0 0 -4", "-4 0 0", "4 0 0"];
     const rotations = ["0 0 0", "0 45 0", "0 -45 0"];
 
-    return allStreamStore.otherStream.map((streamInfo, i) => {
-      return {
-        src: streamInfo ? streamInfo?.stream : null,
-        position: positions[i],
-        rotation: rotations[i],
-        width: videoWidth,
-        height: videoHeight,
-      };
-    });
+    return allStreamStore.otherStream
+      .filter(({ seat }) => seat)
+      .map((streamInfo, i) => {
+        return {
+          src: streamInfo ? streamInfo?.stream : null,
+          position: positions[i],
+          rotation: rotations[i],
+          width: videoWidth,
+          height: videoHeight,
+        };
+      });
   }, [allStreamStore]);
 
   return { multiVideoSources };

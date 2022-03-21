@@ -105,3 +105,6 @@ fabric.properties
 
 # dist
 /dist
+
+# Firebase Keys
+src/firebase/keys/

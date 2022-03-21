@@ -1,7 +1,7 @@
 import React from "react";
 
 // MUI
-import { Box, Dialog, DialogTitle } from "@mui/material";
+import { Dialog, DialogTitle } from "@mui/material";
 
 type Props = {
   isOpen: boolean;

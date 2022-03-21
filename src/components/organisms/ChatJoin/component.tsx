@@ -9,15 +9,17 @@ import { useChatJoinHooks } from "./hooks";
 
 type Props = {
   setIsJoinRoom: Dispatch<SetStateAction<boolean>>;
+  setRoomId: Dispatch<SetStateAction<string>>;
 };
 
-export const ChatJoin: React.VFC<Props> = ({ setIsJoinRoom }) => {
+export const ChatJoin: React.VFC<Props> = ({ setIsJoinRoom, setRoomId }) => {
   const {
     inputRef,
     isDialogOpen,
+    canSitDownPositions,
     roomJoinButtonClickHandler,
     seatJoinButtonClickHandler,
-  } = useChatJoinHooks(setIsJoinRoom);
+  } = useChatJoinHooks(setIsJoinRoom, setRoomId);
 
   return (
     <>
@@ -30,7 +32,7 @@ export const ChatJoin: React.VFC<Props> = ({ setIsJoinRoom }) => {
 
       <CheckSeatDialog
         isOpen={isDialogOpen}
-        seats={[1, 2, 3, 4]} // FIXME: ルーム入室時に座れる席の提示を行うのでそれでデータを作成する
+        seats={canSitDownPositions}
         onClick={seatJoinButtonClickHandler}
       />
     </>
