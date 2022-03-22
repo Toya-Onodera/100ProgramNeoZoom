@@ -1,0 +1,1 @@
+export { MaterialDialog } from "./component";

@@ -4,38 +4,159 @@ import {
   useCallback,
   useContext,
   useRef,
+  useState,
 } from "react";
-import { AllStreamStoreContext, PeerContext } from "../../pages/App";
-import { RoomContext } from "../../pages/App/component";
+
+// Context
+import {
+  AllStreamStoreContext,
+  FirebaseRoomData,
+  StreamInfo,
+  PeerContext,
+  RoomContext,
+} from "../../pages/App";
+
+// Firebase
+import { realtimeDatabaseGet, realtimeDatabaseSet } from "../../../firebase";
+
+// Constants
+import { SEND_TEXT_TYPE } from "../../../constants/SEND_TEXT_TYPE";
 
 export const useChatJoinHooks = (
-  setIsJoinRoom: Dispatch<SetStateAction<boolean>>
+  setIsJoinRoom: Dispatch<SetStateAction<boolean>>,
+  setRoomId: Dispatch<SetStateAction<string>>
 ) => {
-  const allStreamInfo = useContext(AllStreamStoreContext);
   const peer = useContext(PeerContext);
-  const { setRoom } = useContext(RoomContext);
+  const { room, setRoom } = useContext(RoomContext);
+  const { allStreamStore, setAllStreamStore } = useContext(
+    AllStreamStoreContext
+  );
+
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [canSitDownPositions, setCanSitDownPositions] = useState<number[]>([]);
+  const [roomSeatData, setRoomSeatData] = useState<FirebaseRoomData[]>([]);
 
   const inputRef = useRef<HTMLInputElement>();
 
-  const onClick = useCallback(() => {
+  const roomJoinButtonClickHandler = useCallback(async () => {
     // ルーム ID が入力されている場合のみ動作させる
     const roomId = `${inputRef.current?.value}`;
 
-    if (roomId && peer && allStreamInfo.localStream) {
-      const room = peer.joinRoom(roomId, {
+    if (roomId && peer && allStreamStore.localStream) {
+      const _room = peer.joinRoom(roomId, {
         mode: "sfu",
-        stream: allStreamInfo.localStream.stream
-          ? allStreamInfo.localStream.stream
+        stream: allStreamStore.localStream.stream
+          ? allStreamStore.localStream.stream
           : undefined,
       });
 
-      setRoom(room);
-      setIsJoinRoom(true);
+      setRoomId(roomId);
+
+      // 既に座っている座席を取得する (Firebase)
+      // FIXME: 同時に座席に座られた場合、バグるので対応する必要あり
+      const targetRoomSeatData: FirebaseRoomData[] = await new Promise(
+        (resolve) => {
+          realtimeDatabaseGet(roomId).then((snapshot) => {
+            if (snapshot.exists()) {
+              resolve(Object.values(snapshot.val()));
+            } else {
+              resolve([]);
+            }
+          });
+        }
+      );
+
+      setAllStreamStore({
+        localStream: allStreamStore.localStream,
+        otherStream: allStreamStore.otherStream.reduce(
+          (prev: StreamInfo[], current) => {
+            // seat の値がすでに存在している場合は更新しない
+            if ("seat" in current) {
+              return [...prev, current];
+            }
+
+            // seat が付与されていない場合は更新
+            const isSeatKey = targetRoomSeatData.some(
+              (seatData) => seatData?.peerId === current.id
+            );
+
+            if (isSeatKey) {
+              return [
+                ...prev,
+                {
+                  ...current,
+                  // @ts-ignore
+                  seat: targetRoomSeatData.find(
+                    (seatData) => seatData.peerId === current.id
+                  ).seat,
+                },
+              ];
+            } else {
+              return [...prev, current];
+            }
+          },
+          []
+        ),
+      });
+
+      setRoomSeatData(targetRoomSeatData);
+
+      // 座られていない座席を選択肢にする
+      const extractSeatPositions = [1, 2, 3, 4].filter(
+        (position) =>
+          !targetRoomSeatData.some((seatData) => seatData.seat === position)
+      );
+
+      setCanSitDownPositions(extractSeatPositions);
+
+      // ルーム情報を state に保存して座席指定ダイアログを表示する
+      setRoom(_room);
+      setIsDialogOpen(true);
     }
-  }, [peer, allStreamInfo.localStream, setRoom, setIsJoinRoom]);
+  }, [
+    peer,
+    allStreamStore,
+    setAllStreamStore,
+    setRoom,
+    setIsDialogOpen,
+    setCanSitDownPositions,
+    setRoomSeatData,
+    setRoomId,
+  ]);
+
+  const seatJoinButtonClickHandler = useCallback(
+    async (number: number) => {
+      // ルーム ID が入力されている場合のみ動作させる
+      const roomId = `${inputRef.current?.value}`;
+
+      if (allStreamStore.localStream && room && peer) {
+        setAllStreamStore({
+          localStream: {
+            ...allStreamStore.localStream,
+            seat: number,
+          },
+          otherStream: allStreamStore.otherStream,
+        });
+
+        await realtimeDatabaseSet(roomId, [
+          ...roomSeatData,
+          {
+            seat: number,
+            peerId: peer.id,
+          },
+        ]);
+
+        setIsJoinRoom(true);
+      }
+    },
+    [setIsJoinRoom, allStreamStore, setAllStreamStore, roomSeatData, room, peer]
+  );
 
   return {
     inputRef,
-    onClick,
+    isDialogOpen,
+    canSitDownPositions,
+    roomJoinButtonClickHandler,
+    seatJoinButtonClickHandler,
   };
 };

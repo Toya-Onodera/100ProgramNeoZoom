@@ -1,0 +1,1 @@
+export { LookNumbers } from "./component";

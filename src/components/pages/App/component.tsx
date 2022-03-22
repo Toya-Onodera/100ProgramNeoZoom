@@ -5,13 +5,21 @@ import { ChatJoin } from "../../organisms/ChatJoin";
 import { StreamingVideoChat } from "../../organisms/StreamingVideoChat";
 
 // Hooks
-import { AllStreamInfo, PeerType, RoomContextType, useAppHooks } from "./hooks";
+import {
+  PeerType,
+  RoomContextType,
+  useAppHooks,
+  AllStreamInfoContextType,
+} from "./hooks";
 
 export const PeerContext = createContext<PeerType>(null);
 
-export const AllStreamStoreContext = createContext<AllStreamInfo>({
-  localStream: null,
-  otherStream: [],
+export const AllStreamStoreContext = createContext<AllStreamInfoContextType>({
+  allStreamStore: {
+    localStream: null,
+    otherStream: [],
+  },
+  setAllStreamStore: () => {},
 });
 
 export const RoomContext = createContext<RoomContextType>({
@@ -20,17 +28,23 @@ export const RoomContext = createContext<RoomContextType>({
 });
 
 export const App: React.VFC = () => {
-  const { peer, allStreamStore, isJoinRoom, setIsJoinRoom, roomValue } =
-    useAppHooks();
+  const {
+    peer,
+    isJoinRoom,
+    setIsJoinRoom,
+    roomValue,
+    allStreamStoreValue,
+    setRoomId,
+  } = useAppHooks();
 
   return (
-    <AllStreamStoreContext.Provider value={allStreamStore}>
+    <AllStreamStoreContext.Provider value={allStreamStoreValue}>
       <PeerContext.Provider value={peer}>
         <RoomContext.Provider value={roomValue}>
           {isJoinRoom ? (
             <StreamingVideoChat />
           ) : (
-            <ChatJoin setIsJoinRoom={setIsJoinRoom} />
+            <ChatJoin setIsJoinRoom={setIsJoinRoom} setRoomId={setRoomId} />
           )}
         </RoomContext.Provider>
       </PeerContext.Provider>

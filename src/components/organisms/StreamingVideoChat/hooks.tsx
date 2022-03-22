@@ -1,31 +1,58 @@
-import { useMemo } from "react";
+import { useContext, useMemo } from "react";
 
 import { AVideoProps } from "../../atoms/AVideoSource";
 import { AVideoStreamProps } from "../../atoms/AVideoStream";
-import { AllStreamInfo } from "../../pages/App/hooks";
 
-export const useStreamingVideoChatHooks = (allStreamInfo: AllStreamInfo) => {
-  const threeVideoSources = useMemo<(AVideoProps | AVideoStreamProps)[]>(() => {
-    const videoWidth = "4";
-    const videoHeight = "2.25";
+// Contexts
+import { AllStreamStoreContext } from "../../pages/App";
+import { SEAT_NUMBERS } from "../../../constants/SEAT_NUMBERS";
 
-    const positions = ["-4 1.5 -5", "0 1.5 -5", "4 1.5 -5"];
-    const rotations = ["0 45 0", "0 0 0", "0 -45 0"];
+export const useStreamingVideoChatHooks = () => {
+  const { allStreamStore } = useContext(AllStreamStoreContext);
 
-    return [
-      ...[allStreamInfo.localStream, ...allStreamInfo.otherStream].map(
-        (streamInfo, i) => {
+  const multiVideoSources = useMemo<(AVideoProps | AVideoStreamProps)[]>(() => {
+    // 自身席が決まるまではビデオを表示する必要がない
+    if (allStreamStore.localStream?.seat) {
+      const videoWidth = "4";
+      const videoHeight = "2.25";
+      const positions = ["-4 0 0", "0 0 -4", "4 0 0"];
+      const rotations = ["0 90 0", "0 0 0", "0 -90 0"];
+
+      // MEMO: Null にはならないが、コンパイルエラーが発生してしまっている
+      // @ts-ignore
+      const { seat: targetPosition }: { seat: number } =
+        allStreamStore.localStream;
+
+      // 自分の位置を手前中央とし、他のユーザの配置順を決める
+      const positionSawFromMe = [1, 2, 3].map((n) => {
+        const position = targetPosition + n;
+        return position <= SEAT_NUMBERS.HOUR
+          ? position
+          : position - SEAT_NUMBERS.HOUR;
+      });
+
+      // 接続していない場所は黒映像を流す
+      return positionSawFromMe
+        .map((n) => {
+          return (
+            allStreamStore.otherStream.find(({ seat }) => n === seat) || {
+              stream: null,
+            }
+          );
+        })
+        .map((streamInfo, i) => {
           return {
-            src: streamInfo ? streamInfo?.stream : null,
+            src: streamInfo.stream,
             position: positions[i],
             rotation: rotations[i],
             width: videoWidth,
             height: videoHeight,
           };
-        }
-      ),
-    ];
-  }, [allStreamInfo]);
+        });
+    }
 
-  return { threeVideoSources };
+    return [];
+  }, [allStreamStore]);
+
+  return { multiVideoSources };
 };
