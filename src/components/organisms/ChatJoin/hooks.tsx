@@ -146,12 +146,6 @@ export const useChatJoinHooks = (
           },
         ]);
 
-        // Firebase の保存タイミング的に同時に監視するのは厳しいので全体に入室の案内を送る
-        room.send({
-          type: SEND_TEXT_TYPE.SEAT,
-          text: number,
-        });
-
         setIsJoinRoom(true);
       }
     },
