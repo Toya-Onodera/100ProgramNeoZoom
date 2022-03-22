@@ -52,31 +52,32 @@ export const useAppHooks = () => {
   // カメラを使用する
   // TODO: カメラの起動タイミングを調整する必要がありそう
   useEffect(() => {
-    (async () => {
-      try {
-        const localStream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: true,
-        });
+    peer &&
+      (async () => {
+        try {
+          const localStream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: true,
+          });
 
-        const localStreamInfo = {
-          id: peer.id,
-          stream: localStream,
-        };
+          const localStreamInfo = {
+            id: peer.id,
+            stream: localStream,
+          };
 
-        setAllStreamStore({
-          localStream: localStreamInfo,
-          otherStream: [],
-        });
-      } catch (error) {
-        setAllStreamStore({
-          localStream: null,
-          otherStream: [],
-        });
+          setAllStreamStore({
+            localStream: localStreamInfo,
+            otherStream: [],
+          });
+        } catch (error) {
+          setAllStreamStore({
+            localStream: null,
+            otherStream: [],
+          });
 
-        console.error("mediaDevice.getUserMedia() error", error);
-      }
-    })();
+          console.error("mediaDevice.getUserMedia() error", error);
+        }
+      })();
   }, [peer]);
 
   // Context で利用できるようにまとめておく
@@ -102,9 +103,11 @@ export const useAppHooks = () => {
           };
         });
 
-        setAllStreamStore({
-          localStream: allStreamStore.localStream,
-          otherStream: remoteStreamsInfo,
+        setAllStreamStore((prev) => {
+          return {
+            localStream: prev.localStream,
+            otherStream: remoteStreamsInfo,
+          };
         });
       }
     }
@@ -117,9 +120,11 @@ export const useAppHooks = () => {
         stream: stream,
       };
 
-      setAllStreamStore({
-        localStream: allStreamStore.localStream,
-        otherStream: [...allStreamStore.otherStream, userStreamInfo],
+      setAllStreamStore((prev) => {
+        return {
+          localStream: prev.localStream,
+          otherStream: [...prev.otherStream, userStreamInfo],
+        };
       });
     });
 
