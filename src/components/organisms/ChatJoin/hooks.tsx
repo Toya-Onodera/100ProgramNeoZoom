@@ -19,6 +19,9 @@ import {
 // Firebase
 import { realtimeDatabaseGet, realtimeDatabaseSet } from "../../../firebase";
 
+// Constants
+import { SEND_TEXT_TYPE } from "../../../constants/SEND_TEXT_TYPE";
+
 export const useChatJoinHooks = (
   setIsJoinRoom: Dispatch<SetStateAction<boolean>>,
   setRoomId: Dispatch<SetStateAction<string>>
@@ -142,6 +145,12 @@ export const useChatJoinHooks = (
             peerId: peer.id,
           },
         ]);
+
+        // Firebase の保存タイミング的に同時に監視するのは厳しいので全体に入室の案内を送る
+        room.send({
+          type: SEND_TEXT_TYPE.SEAT,
+          text: number,
+        });
 
         setIsJoinRoom(true);
       }

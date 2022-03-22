@@ -3,6 +3,13 @@ import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import Peer, { SfuRoom } from "skyway-js";
 import { useBeforeunload } from "react-beforeunload";
 
+// Firebase
+import {
+  realtimeDatabaseGet,
+  realtimeDatabaseOnValue,
+} from "../../../firebase";
+import { SEND_TEXT_TYPE } from "../../../constants/SEND_TEXT_TYPE";
+
 export type PeerType = null | Peer;
 export type StreamType = null | MediaStream;
 export type RoomType = SfuRoom | null;
@@ -87,10 +94,8 @@ export const useAppHooks = () => {
   );
 
   useEffect(() => {
-    room?.on("open", () => {
-      console.log("open", room);
-
-      // 接続時に既にユーザが複数人いる場合の処理
+    // 接続時に既にユーザが複数人いる場合の処理
+    if (room) {
       const { remoteStreams } = room;
 
       if (remoteStreams) {
@@ -106,7 +111,7 @@ export const useAppHooks = () => {
           otherStream: remoteStreamsInfo,
         });
       }
-    });
+    }
 
     room?.on("stream", (stream) => {
       console.log("stream", stream);
@@ -135,18 +140,38 @@ export const useAppHooks = () => {
         };
       }) => {
         console.log("data", peerId, data);
-        // const { type, text } = data;
+        const { type, text } = data;
+
+        switch (type) {
+          case SEND_TEXT_TYPE.SEAT:
+            setAllStreamStore((prev: AllStreamInfo) => {
+              return {
+                ...prev,
+                otherStream: prev.otherStream.map((stream) => {
+                  return stream.seat
+                    ? stream
+                    : {
+                        id: stream.id,
+                        stream: stream.stream,
+                        seat: parseInt(text),
+                      };
+                }),
+              };
+            });
+
+            break;
+        }
       }
     );
   }, [room]);
 
   // TODO: ページを閉じたとき or 違うサイトに遷移したときに Firebase 上のルームデータを削除する
-  // フロントで完結は無理だと思っている -> (例) バックエンドサーバたてて ws で常時接続して、接続が切れたら db から削除みたいな処理しないと厳しそう
-  useBeforeunload(async (event) => {
-    // ひとまずページ離脱時に確認だけ行う処理を追加しておく
-    event.preventDefault();
-    return false;
-  });
+  // // フロントで完結は無理だと思っている -> (例) バックエンドサーバたてて ws で常時接続して、接続が切れたら db から削除みたいな処理しないと厳しそう
+  // useBeforeunload(async (event) => {
+  //   // ひとまずページ離脱時に確認だけ行う処理を追加しておく
+  //   event.preventDefault();
+  //   return false;
+  // });
 
   return {
     peer,
