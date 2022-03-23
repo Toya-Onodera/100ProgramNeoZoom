@@ -13,7 +13,6 @@ import { AVideoPeople } from "../../molecules/AVideoPeople";
 import { useStreamingVideoChatHooks } from "./hooks";
 
 export const StreamingVideoChat: React.VFC = () => {
-  // FIXME: ここは stream を動的に表示する処理に変更する
   const { multiVideoSources } = useStreamingVideoChatHooks();
 
   return (

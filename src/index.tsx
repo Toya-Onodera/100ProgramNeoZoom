@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { App } from "./components/pages/App";
 import reportWebVitals from "./reportWebVitals";
+import "@tensorflow/tfjs-backend-webgl";
 
 ReactDOM.render(
   <React.StrictMode>

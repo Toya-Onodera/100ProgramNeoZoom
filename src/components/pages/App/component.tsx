@@ -3,6 +3,7 @@ import React, { createContext } from "react";
 // Components
 import { ChatJoin } from "../../organisms/ChatJoin";
 import { StreamingVideoChat } from "../../organisms/StreamingVideoChat";
+import { FaceMesh } from "../../organisms/FeshMesh";
 
 // Hooks
 import {
@@ -46,6 +47,8 @@ export const App: React.VFC = () => {
           ) : (
             <ChatJoin setIsJoinRoom={setIsJoinRoom} setRoomId={setRoomId} />
           )}
+
+          <FaceMesh />
         </RoomContext.Provider>
       </PeerContext.Provider>
     </AllStreamStoreContext.Provider>

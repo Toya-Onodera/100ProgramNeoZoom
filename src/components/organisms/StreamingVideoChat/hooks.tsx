@@ -10,6 +10,7 @@ import { SEAT_NUMBERS } from "../../../constants/SEAT_NUMBERS";
 export const useStreamingVideoChatHooks = () => {
   const { allStreamStore } = useContext(AllStreamStoreContext);
 
+  // SkyWay で取得した Stream 及び、人型オブジェクトを座標を調整する部分
   const multiVideoSources = useMemo<(AVideoProps | AVideoStreamProps)[]>(() => {
     // 自身席が決まるまではビデオを表示する必要がない
     if (allStreamStore.localStream?.seat) {
